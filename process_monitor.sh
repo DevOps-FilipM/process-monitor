@@ -39,17 +39,17 @@ send_alert() {
 # --- DATA COLLECTION ---
 log "Starting process monitoring..."
 
-# Processes with high CPU usage
+# Processes with high CPU usage (excluding ps itself)
 high_cpu=$(ps aux --sort=-%cpu | awk -v threshold="$CPU_THRESHOLD" '
-    NR>1 && $3+0 >= threshold {
+    NR>1 && $3+0 >= threshold && $11 != "ps" {
         printf "{\"pid\":\"%s\",\"user\":\"%s\",\"cpu\":\"%s\",\"mem\":\"%s\",\"command\":\"%s\"},\n",
         $2, $1, $3, $4, $11
     }
 ')
 
-# Processes with high memory usage
+# Processes with high memory usage (excluding ps itself)
 high_mem=$(ps aux --sort=-%mem | awk -v threshold="$MEM_THRESHOLD" '
-    NR>1 && $4+0 >= threshold {
+    NR>1 && $4+0 >= threshold && $11 != "ps" {
         printf "{\"pid\":\"%s\",\"user\":\"%s\",\"cpu\":\"%s\",\"mem\":\"%s\",\"command\":\"%s\"},\n",
         $2, $1, $3, $4, $11
     }
